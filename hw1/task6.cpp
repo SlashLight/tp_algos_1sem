@@ -28,7 +28,7 @@ int partition(int* arr, int l, int r) {
 }
 
 int medianOfThreePartition(int* arr, int l, int r) {
-    int mid = arr[r / 2];
+    int mid = arr[(r - 1 + l) / 2];
     int first = arr[l];
     int last = arr[r - 1];
 
@@ -37,7 +37,7 @@ int medianOfThreePartition(int* arr, int l, int r) {
     int medianElem = mid + first + last - maxElem - minElem;
 
     if (medianElem == mid) {
-        swap(arr[r / 2], arr[r - 1]);
+        swap(arr[(r - 1 + l) / 2], arr[r - 1]);
     } else if (medianElem == first) {
         swap(arr[l], arr[r - 1]);
     }
