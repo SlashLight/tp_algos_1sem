@@ -45,6 +45,7 @@ void CArray<T>:: grow() {
     for(int i = 0; i < realSize; ++i) {
         newBuffer[i] = buffer[i];
     }
+    delete[] buffer;
     buffer = newBuffer;
     bufferSize = newBufferSize;
 }
