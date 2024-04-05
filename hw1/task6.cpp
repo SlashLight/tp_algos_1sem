@@ -13,12 +13,18 @@
 
 using namespace std;
 
-int partition(int* arr, int l, int r) {
+template <class T>
+bool IsLessDefault(const T& l, const T& r) {
+    return l < r;
+}
+
+template <class T>
+int partition(T* arr, int l, int r, bool isLess(const T& l, const T& r)) {
     int pivot = arr[r - 1];
     int i = l;
 
     for (int j = l; j < r - 1; ++j) {
-        if (arr[j] < pivot) {
+        if (isLess(arr[j], pivot)) {
             swap(arr[i], arr[j]);
             ++i;
         }
@@ -27,14 +33,15 @@ int partition(int* arr, int l, int r) {
     return i;
 }
 
-int medianOfThreePartition(int* arr, int l, int r) {
-    int mid = arr[(r - 1 + l) / 2];
-    int first = arr[l];
-    int last = arr[r - 1];
+template <class T>
+int medianOfThreePartition(T* arr, int l, int r, bool isLess(const T& l, const T& r)) {
+    T mid = arr[(r - 1 + l) / 2];
+    T first = arr[l];
+    T last = arr[r - 1];
 
-    int maxElem = max(max(first, last), mid);
-    int minElem = min(min(first, last), mid);
-    int medianElem = mid + first + last - maxElem - minElem;
+    T maxElem = max(max(first, last), mid);
+    T minElem = min(min(first, last), mid);
+    T medianElem = mid + first + last - maxElem - minElem;
 
     if (medianElem == mid) {
         swap(arr[(r - 1 + l) / 2], arr[r - 1]);
@@ -42,13 +49,14 @@ int medianOfThreePartition(int* arr, int l, int r) {
         swap(arr[l], arr[r - 1]);
     }
 
-    return partition(arr, l, r);
+    return partition(arr, l, r, isLess);
 }
 
-int findKStat(int* arr, int n, int k) {
+template <class T>
+int findKStat(T* arr, int n, int k, bool isLess(const T& l, const T& r) = IsLessDefault) {
     int l = 0;
     int r = n;
-    int pivotPos = medianOfThreePartition(arr, l, r);
+    int pivotPos = medianOfThreePartition(arr, l, r, isLess);
     while (l < r) {
         if (pivotPos == k) {
             return arr[k];
@@ -58,7 +66,7 @@ int findKStat(int* arr, int n, int k) {
         } else {
             r = pivotPos;
         }
-        pivotPos = medianOfThreePartition(arr, l, r);
+        pivotPos = medianOfThreePartition(arr, l, r, isLess);
     }
     return arr[k];
 }
