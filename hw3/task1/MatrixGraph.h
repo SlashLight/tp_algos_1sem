@@ -2,11 +2,12 @@
 // Created by slashlight on 15.05.2024.
 //
 #include <vector>
+#include "IGraph.h"
 #ifndef ALGOS_MATRIXGRAPH_H
 #define ALGOS_MATRIXGRAPH_H
 
 
-class MatrixGraph {
+class MatrixGraph : public IGraph {
 public:
     MatrixGraph( int vertexCount );
 

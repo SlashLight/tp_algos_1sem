@@ -3,11 +3,12 @@
 //
 #include <vector>
 #include <map>
+#include "IGraph.h"
 #ifndef ALGOS_SETGRAPH_H
 #define ALGOS_SETGRAPH_H
 
 
-class SetGraph {
+class SetGraph : public IGraph {
 public:
     SetGraph( int vertexCount ) {};
 

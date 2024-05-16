@@ -2,11 +2,12 @@
 // Created by slashlight on 15.05.2024.
 //
 #include <vector>
+#include "IGraph.h"
 #ifndef ALGOS_ARCGRAPH_H
 #define ALGOS_ARCGRAPH_H
 
 
-class ArcGraph {
+class ArcGraph : public IGraph {
 public:
     ArcGraph( int _vertexCount );
 
