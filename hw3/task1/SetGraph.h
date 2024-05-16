@@ -10,7 +10,9 @@
 
 class SetGraph : public IGraph {
 public:
-    SetGraph( int vertexCount ) {};
+    SetGraph( int vertexCount ) = default;
+    SetGraph( const IGraph& graph );
+    SetGraph& operator=(const SetGraph&) = delete;
 
     void AddEdge( int from, int to ) override;
 

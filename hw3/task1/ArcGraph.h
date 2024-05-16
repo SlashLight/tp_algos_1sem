@@ -10,6 +10,8 @@
 class ArcGraph : public IGraph {
 public:
     ArcGraph( int _vertexCount );
+    ArcGraph( const IGraph& graph );
+    ArcGraph& operator=(const ArcGraph&) = delete;
 
     void AddEdge( int from, int to );
 

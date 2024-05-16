@@ -10,6 +10,8 @@
 class MatrixGraph : public IGraph {
 public:
     MatrixGraph( int vertexCount );
+    MatrixGraph( const IGraph& graph );
+    MatrixGraph& operator=(const MatrixGraph&) = delete;
 
     void AddEdge( int from, int to );
     int VerticesCount() const;

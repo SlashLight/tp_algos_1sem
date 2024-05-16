@@ -10,6 +10,8 @@
 class ListGraph : public IGraph{
 public:
     ListGraph( int vertexCount );
+    ListGraph( const IGraph& graph );
+    ListGraph& operator=(const ListGraph&) = delete;
 
     void AddEdge( int from, int to ) override;
 
