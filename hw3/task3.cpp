@@ -1,194 +1,119 @@
 #include <iostream>
-#include <array>
-#include <string>
-#include <queue>
-#include <unordered_map>
-#include <algorithm>
+#include <vector>
+#include <unordered_set>
+#include <set>
+#include <random>
 
-const int SideSize = 5;
-const int FieldSize = SideSize * SideSize;
-const std::array<char, FieldSize> FinalField( {1, 2, 3, 4, 5, 6, 7, 8, 0} );
-
-
-
-class GameState {
+class MatrixGraph {
 public:
-    GameState( const std::array<char, FieldSize>& _field );
+    MatrixGraph( int vertexCount );
+    ~MatrixGraph() = default;
+    MatrixGraph& operator=(const MatrixGraph&) = delete;
 
-    bool CanMoveLeft() const;
-    bool CanMoveUp() const;
-    bool CanMoveRight() const;
-    bool CanMoveDown() const;
+    void AddEdge( int from, int to, int w );
+    std::vector<int> Dijkstra( int start );
 
-    GameState MoveLeft() const;
-    GameState MoveUp() const;
-    GameState MoveRight() const;
-    GameState MoveDown() const;
-
-    bool IsFinish() const;
-
-    char GetFieldValue( size_t pos ) const { return field[pos];}
-
-    bool operator == (const GameState& state) const { return field == state.field; }
-    bool operator != (const GameState& state) const { return !(*this == state); }
+    int VerticesCount() const;
+    std::vector<int> GetNextVertices( int vertex ) const;
 private:
-    std::array<char, FieldSize> field;
-    size_t zeroPos;
+    int** matrix;
+    std::vector<int> shortestDist;
 };
 
-GameState::GameState(const std::array<char, FieldSize> &_field) :
-    field(_field),
-    zeroPos(-1)
-{
-    for (int i = 0; i < field.size(); ++i) {
-        if ( field[i] == 0 ) {
-            zeroPos = i;
-            break;
-        }
-    }
-}
-
-bool GameState::CanMoveLeft() const {
-    return zeroPos % SideSize < SideSize - 1;
-}
-
-bool GameState::CanMoveUp() const {
-    return zeroPos < FieldSize - SideSize;
-}
-
-bool GameState::CanMoveRight() const {
-    return zeroPos % SideSize > 0;
-}
-
-bool GameState::CanMoveDown() const {
-    return zeroPos >= SideSize;
-}
-
-GameState GameState::MoveLeft() const {
-    GameState newState( *this );
-    std::swap( newState.field[zeroPos], newState.field[zeroPos + 1] );
-    ++newState.zeroPos;
-    return newState;
-}
-
-GameState GameState::MoveUp() const {
-    GameState newState( *this );
-    std::swap( newState.field[zeroPos], newState.field[zeroPos + SideSize] );
-    newState.zeroPos += SideSize;
-    return newState;
-}
-
-GameState GameState::MoveRight() const {
-    GameState newState( *this );
-    std::swap( newState.field[zeroPos], newState.field[zeroPos - 1] );
-    --newState.zeroPos;
-    return newState;
-}
-
-GameState GameState::MoveDown() const {
-    GameState newState( *this );
-    std::swap( newState.field[zeroPos], newState.field[zeroPos - SideSize] );
-    newState.zeroPos -= SideSize;
-    return newState;
-}
-
-bool GameState::IsFinish() const {
-    return field == FinalField;
-}
-
-struct StateHasher {
-    size_t operator()( const GameState& state ) const {
-        size_t hash = 0;
-        size_t p = 137;
-        for (int i = 0; i < FieldSize; ++i) {
-            hash += state.GetFieldValue( i ) * p;
-            p *= 137;
-        }
+struct Comparator{
+    bool operator() ( const std::pair<int, int>& v1, const std::pair<int, int>& v2 ) const {
+        return v1.second < v2.second;
     }
 };
 
-std::string GetSolution( const GameState& state ) {
-    std::queue<GameState> bfsQueue;
-    bfsQueue.push( state );
-    std::unordered_map<GameState, char> visited;
-    visited[state] = 'S';
-    while( !bfsQueue.empty() ) {
-        GameState current = bfsQueue.front();
-        bfsQueue.pop();
-        if (current.IsFinish()) {
-            break;
+MatrixGraph::MatrixGraph(int vertexCount) {
+    //matrix.resize(vertexCount + 1);
+    matrix = new int*[vertexCount + 1];
+    shortestDist.resize( vertexCount + 1, TMP_MAX );
+    for (int i = 0; i < vertexCount + 1; ++i) {
+        matrix[i] = new int[vertexCount + 1];
+        for (int j = 0; j < vertexCount + 1; ++j) {
+            matrix[i][j] = 0;
         }
-
-        if( current.CanMoveLeft() ) {
-            GameState newState = current.MoveLeft();
-            if( visited.find( newState ) == visited.end() ) {
-                bfsQueue.push( newState );
-                visited[newState] = 'L';
-            }
-        }
-
-        if( current.CanMoveUp() ) {
-            GameState newState = current.MoveUp();
-            if( visited.find( newState ) == visited.end() ) {
-                bfsQueue.push( newState );
-                visited[newState] = 'U';
-            }
-        }
-
-        if( current.CanMoveRight() ) {
-            GameState newState = current.MoveRight();
-            if( visited.find( newState ) == visited.end() ) {
-                bfsQueue.push( newState );
-                visited[newState] = 'R';
-            }
-        }
-
-        if( current.CanMoveDown() ) {
-            GameState newState = current.MoveDown();
-            if( visited.find( newState ) == visited.end() ) {
-                bfsQueue.push( newState );
-                visited[newState] = 'D';
-            }
-        }
-
     }
-
-    std::string result;
-    GameState current( FinalField );
-    char move = visited[current];
-    while( move != 'S' ) {
-        result += move;
-        switch ( move ) {
-            case 'L':
-                current = current.MoveRight();
-                break;
-            case 'U':
-                current = current.MoveDown();
-                break;
-            case 'R':
-                current = current.MoveLeft();
-                break;
-            case 'D':
-                current = current.MoveUp();
-                break;
-            default:
-                break;
-        }
-        move = visited[current];
-    }
-    std::reverse( result.begin(), result.end() );
-    return result;
-
 }
 
-std::ostream& operator << (std::ostream& out, const GameState& state) {
-    for( size_t y = 0; y < SideSize, ++y ) {
-        for (size_t x = 0; x < SideSize; ++x) {
-            out << static_cast<int>(state.GetFieldValue( y * SideSize + x )) << " ";
-        }
-        out << std::endl;
+/*MatrixGraph::~MatrixGraph() {
+
+}*/
+
+void MatrixGraph::AddEdge(int from, int to, int w) {
+    if ( matrix[from][to] == 0 || matrix[from][to] > w ) {
+        matrix[from][to] = w;
+        matrix[to][from] = w;
     }
-    out << std::endl;
 }
 
+int MatrixGraph::VerticesCount() const {
+    return shortestDist.size();
+}
 
+std::vector<int> MatrixGraph::GetNextVertices(int vertex) const {
+    std::vector<int> res;
+    int n = VerticesCount();
+    for (int i = 0; i < n; ++i) {
+        if ( matrix[vertex][i] != 0 )
+            res.push_back( i );
+    }
+    return res;
+}
+
+std::vector<int> MatrixGraph::Dijkstra(int start) {
+    shortestDist[start] = 0;
+    std::pair<int, int> vertWithDist( shortestDist[start], start );
+    std::set< std::pair<int, int> > queue;
+    queue.insert( vertWithDist );
+    while ( !queue.empty() ) {
+        int vert = queue.begin()->second;
+        queue.erase(queue.begin());
+        std::vector<int> adj = GetNextVertices(vert);
+        for (int & i : adj) {
+            if ( shortestDist[i] == TMP_MAX ) {
+                auto w = matrix[vert][i];
+                shortestDist[i] = shortestDist[vert] + matrix[vert][i];
+                if ( shortestDist[i] < 0 ) {
+                    std::cout<<"";
+                }
+                auto sd = shortestDist[i];
+                auto elem = std::pair<int, int>(shortestDist[i], i) ;
+                queue.insert( elem );
+            } else if ( shortestDist[i] > shortestDist[vert] + matrix[vert][i] ) {
+                auto w = matrix[vert][i];
+                auto elem = std::pair<int, int>(i, shortestDist[i]) ;
+                //auto pelem = queue.find( elem );
+                queue.erase( elem );
+                shortestDist[i] = shortestDist[vert] + matrix[vert][i];
+                if ( shortestDist[i] < 0 ) {
+                    std::cout<<"";
+                }
+                queue.insert( std::pair<int, int>( shortestDist[i], i) );
+            }
+        }
+    }
+
+    return shortestDist;
+}
+
+int main() {
+    int cities, roads;
+    std::cin >> cities >> roads;
+    auto* graph = new MatrixGraph(cities);
+
+    for (int i = 0; i < roads; ++i) {
+        int from, to, v;
+        std::cin >> from >> to >> v;
+        graph->AddEdge(from, to, v);
+    }
+
+    int s, e;
+    std::cin >> s >> e;
+    std::vector<int> shortestDist(cities);
+    shortestDist = graph->Dijkstra(s);
+    std::cout << shortestDist[e];
+    delete graph;
+}

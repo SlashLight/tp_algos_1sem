@@ -31,7 +31,7 @@ std::vector<int> MatrixGraph::GetNextVertices(int vertex) const {
     int n = this->VerticesCount();
     for (int i = 0; i < n; ++i) {
         if ( matrix[vertex][i] == 1 )
-            res.push_back( matrix[vertex][i] );
+            res.push_back( i );
     }
     return res;
 }
@@ -41,7 +41,7 @@ std::vector<int> MatrixGraph::GetPrevVertices(int vertex) const {
     int n = this->VerticesCount();
     for (int i = 0; i < n; ++i) {
         if ( matrix[i][vertex] == 1 )
-            res.push_back( matrix[i][vertex] );
+            res.push_back( i );
     }
     return res;
 }
